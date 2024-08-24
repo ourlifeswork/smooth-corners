@@ -23,23 +23,26 @@ class SmoothCornersPainter {
     const radius = Math.min(borderRadius, width / 2, height / 2);
     const smoothedRadius = radius * smoothness;
 
+    // Define control points for bezier curve smoothing
+    const controlPointOffset = smoothedRadius * 0.5522847498; // Approximation for circle smoothing
+
     ctx.beginPath();
 
     // Top-left corner
     ctx.moveTo(0, smoothedRadius);
-    ctx.arcTo(0, 0, smoothedRadius, 0, smoothedRadius);
+    ctx.bezierCurveTo(0, controlPointOffset, controlPointOffset, 0, smoothedRadius, 0);
 
     // Top-right corner
     ctx.lineTo(width - smoothedRadius, 0);
-    ctx.arcTo(width, 0, width, smoothedRadius, smoothedRadius);
+    ctx.bezierCurveTo(width - controlPointOffset, 0, width, controlPointOffset, width, smoothedRadius);
 
     // Bottom-right corner
     ctx.lineTo(width, height - smoothedRadius);
-    ctx.arcTo(width, height, width - smoothedRadius, height, smoothedRadius);
+    ctx.bezierCurveTo(width, height - controlPointOffset, width - controlPointOffset, height, width - smoothedRadius, height);
 
     // Bottom-left corner
     ctx.lineTo(smoothedRadius, height);
-    ctx.arcTo(0, height, 0, height - smoothedRadius, smoothedRadius);
+    ctx.bezierCurveTo(controlPointOffset, height, 0, height - controlPointOffset, 0, height - smoothedRadius);
 
     ctx.closePath();
     ctx.fill();
