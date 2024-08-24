@@ -4,17 +4,18 @@ registerPaint('smooth-corners', class {
   }
 
   paint(ctx, size, styleMap) {
-    const exp = parseFloat(styleMap.get('--smooth-corners').toString());
+    // Get the smoothing factor from the custom property
+    const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "1");
     const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
 
-    // Get the border-radius property value
-    const borderRadiusValue = styleMap.get('border-radius').toString().split(" ");
+    // Safely get the border-radius property value, fallback to 16px if it's not set
+    const borderRadiusValue = styleMap.get('border-radius') ? styleMap.get('border-radius').toString().split(" ") : ["16px"];
 
-    // Handle different border-radius values for each corner
-    const rTopLeft = parseFloat(borderRadiusValue[0]) || 0;
-    const rTopRight = parseFloat(borderRadiusValue[1] || borderRadiusValue[0]) || 0;
-    const rBottomRight = parseFloat(borderRadiusValue[2] || borderRadiusValue[0]) || 0;
-    const rBottomLeft = parseFloat(borderRadiusValue[3] || borderRadiusValue[1] || borderRadiusValue[0]) || 0;
+    // Parse the border-radius values for each corner, default to 16px if necessary
+    const rTopLeft = parseFloat(borderRadiusValue[0]) || 16;
+    const rTopRight = parseFloat(borderRadiusValue[1] || borderRadiusValue[0]) || 16;
+    const rBottomRight = parseFloat(borderRadiusValue[2] || borderRadiusValue[0]) || 16;
+    const rBottomLeft = parseFloat(borderRadiusValue[3] || borderRadiusValue[1] || borderRadiusValue[0]) || 16;
 
     const width = size.width;
     const height = size.height;
