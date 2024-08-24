@@ -4,7 +4,6 @@ registerPaint('smooth-corners', class {
   }
 
   paint(ctx, size, styleMap) {
-    // Get the smoothing factor from the custom property
     const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "1");
     const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
 
@@ -23,33 +22,20 @@ registerPaint('smooth-corners', class {
     ctx.beginPath();
 
     // Top-left corner
-    for (let i = 0; i <= rTopLeft; i++) {
-      const x = i;
-      const y = rTopLeft - Math.pow(Math.abs(Math.pow(rTopLeft, n) - Math.pow(Math.abs(i), n)), 1 / n);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
+    ctx.moveTo(rTopLeft, 0);
+    ctx.arcTo(0, 0, 0, rTopLeft, rTopLeft);
 
     // Top-right corner
-    for (let i = 0; i <= rTopRight; i++) {
-      const x = width - i;
-      const y = rTopRight - Math.pow(Math.abs(Math.pow(rTopRight, n) - Math.pow(Math.abs(i), n)), 1 / n);
-      ctx.lineTo(x, y);
-    }
+    ctx.lineTo(width - rTopRight, 0);
+    ctx.arcTo(width, 0, width, rTopRight, rTopRight);
 
     // Bottom-right corner
-    for (let i = 0; i <= rBottomRight; i++) {
-      const x = width - i;
-      const y = height - Math.pow(Math.abs(Math.pow(rBottomRight, n) - Math.pow(Math.abs(i), n)), 1 / n);
-      ctx.lineTo(x, y);
-    }
+    ctx.lineTo(width, height - rBottomRight);
+    ctx.arcTo(width, height, width - rBottomRight, height, rBottomRight);
 
     // Bottom-left corner
-    for (let i = 0; i <= rBottomLeft; i++) {
-      const x = i;
-      const y = height - Math.pow(Math.abs(Math.pow(rBottomLeft, n) - Math.pow(Math.abs(i), n)), 1 / n);
-      ctx.lineTo(x, y);
-    }
+    ctx.lineTo(rBottomLeft, height);
+    ctx.arcTo(0, height, 0, height - rBottomLeft, rBottomLeft);
 
     ctx.closePath();
     ctx.fill();
