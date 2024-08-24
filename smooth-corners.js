@@ -4,17 +4,12 @@ registerPaint('smooth-corners', class {
   }
 
   paint(ctx, size, styleMap) {
+    // Get the smoothing factor from the custom property
     const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "1");
     const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
 
     // Safely get the border-radius property value, fallback to 16px if it's not set
-    const borderRadiusValue = styleMap.get('border-radius') ? styleMap.get('border-radius').toString().split(" ") : ["16px"];
-
-    // Parse the border-radius values for each corner, default to 16px if necessary
-    const rTopLeft = parseFloat(borderRadiusValue[0]) || 16;
-    const rTopRight = parseFloat(borderRadiusValue[1] || borderRadiusValue[0]) || 16;
-    const rBottomRight = parseFloat(borderRadiusValue[2] || borderRadiusValue[0]) || 16;
-    const rBottomLeft = parseFloat(borderRadiusValue[3] || borderRadiusValue[1] || borderRadiusValue[0]) || 16;
+    const borderRadius = parseFloat(styleMap.get('border-radius')?.toString() || "16px");
 
     const width = size.width;
     const height = size.height;
@@ -22,20 +17,23 @@ registerPaint('smooth-corners', class {
     ctx.beginPath();
 
     // Top-left corner
-    ctx.moveTo(rTopLeft, 0);
-    ctx.arcTo(0, 0, 0, rTopLeft, rTopLeft);
+    ctx.moveTo(borderRadius, 0);
+    ctx.arcTo(0, 0, 0, borderRadius, borderRadius);
 
     // Top-right corner
-    ctx.lineTo(width - rTopRight, 0);
-    ctx.arcTo(width, 0, width, rTopRight, rTopRight);
+    ctx.lineTo(width - borderRadius, 0);
+    ctx.arcTo(width, 0, width, borderRadius, borderRadius);
 
     // Bottom-right corner
-    ctx.lineTo(width, height - rBottomRight);
-    ctx.arcTo(width, height, width - rBottomRight, height, rBottomRight);
+    ctx.lineTo(width, height - borderRadius);
+    ctx.arcTo(width, height, width - borderRadius, height, borderRadius);
 
     // Bottom-left corner
-    ctx.lineTo(rBottomLeft, height);
-    ctx.arcTo(0, height, 0, height - rBottomLeft, rBottomLeft);
+    ctx.lineTo(borderRadius, height);
+    ctx.arcTo(0, height, 0, height - borderRadius, borderRadius);
+
+    // Close the path
+    ctx.lineTo(0, borderRadius);
 
     ctx.closePath();
     ctx.fill();
