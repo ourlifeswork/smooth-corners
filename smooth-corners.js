@@ -4,18 +4,22 @@ class SmoothCornersPainter {
   }
 
   paint(ctx, size, properties) {
+    // Safely get the border-radius value, or fallback to 20px
     const borderRadiusProp = properties.get('border-radius');
+    const borderRadius = borderRadiusProp && borderRadiusProp.value
+      ? parseFloat(borderRadiusProp.toString())
+      : 20;
+
+    // Safely get the custom smooth radius, or fallback to 0.6 (60%)
     const smoothnessProp = properties.get('--smooth-radius');
-
-    // Check if borderRadiusProp is defined, if not, default to 20
-    const borderRadius = borderRadiusProp.length > 0 ? parseFloat(borderRadiusProp.toString()) : 20;
-
-    // Check if smoothnessProp is defined, if not, default to 0.6
-    const smoothness = smoothnessProp.length > 0 ? parseFloat(smoothnessProp.toString()) : 0.6;
+    const smoothness = smoothnessProp && smoothnessProp.value
+      ? parseFloat(smoothnessProp.toString())
+      : 0.6;
 
     const width = size.width;
     const height = size.height;
 
+    // Ensure the radius does not exceed half of the element's width or height
     const radius = Math.min(borderRadius, width / 2, height / 2);
     const smoothedRadius = radius * smoothness;
 
