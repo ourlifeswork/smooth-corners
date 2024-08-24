@@ -1,6 +1,6 @@
 class SmoothCornersPainter {
   static get inputProperties() {
-    return ['border-radius', '--smooth-corner-radius'];
+    return ['border-radius', '--smooth-radius'];
   }
 
   paint(ctx, size, properties) {
