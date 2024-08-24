@@ -1,36 +1,52 @@
 registerPaint('smooth-corners', class {
   static get inputProperties() {
-    return ['--smooth-corners'];
+    return ['--smooth-corners', 'border-radius'];
   }
 
   paint(ctx, size, styleMap) {
-    // Get the smoothness value
-    const exp = styleMap.get('--smooth-corners').toString();
-    let n = parseFloat(exp);
-    if (isNaN(n)) n = 1; // Fallback to 1 if invalid
-    n = Math.max(0.00000000001, Math.min(n, 100)); // Clamp between reasonable bounds
+    const exp = parseFloat(styleMap.get('--smooth-corners').toString());
+    const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
 
-    // Calculate radii based on the element's dimensions
-    const w = size.width;
-    const h = size.height;
+    // Get the border-radius property value
+    const borderRadiusValue = styleMap.get('border-radius').toString().split(" ");
 
-    const rX = w / 2; // Radius for width
-    const rY = h / 2; // Radius for height
+    // Handle different border-radius values for each corner
+    const rTopLeft = parseFloat(borderRadiusValue[0]) || 0;
+    const rTopRight = parseFloat(borderRadiusValue[1] || borderRadiusValue[0]) || 0;
+    const rBottomRight = parseFloat(borderRadiusValue[2] || borderRadiusValue[0]) || 0;
+    const rBottomLeft = parseFloat(borderRadiusValue[3] || borderRadiusValue[1] || borderRadiusValue[0]) || 0;
+
+    const width = size.width;
+    const height = size.height;
 
     ctx.beginPath();
 
-    // Top-right to bottom-left smoothing
-    for (let i = 0; i <= 2 * rX; i++) {
-      const x = (i - rX) + rX;
-      const y = rY - Math.pow(Math.abs(Math.pow(rY, n) - Math.pow(Math.abs(i - rX), n)), 1 / n);
+    // Top-left corner
+    for (let i = 0; i <= rTopLeft; i++) {
+      const x = i;
+      const y = rTopLeft - Math.pow(Math.abs(Math.pow(rTopLeft, n) - Math.pow(Math.abs(i), n)), 1 / n);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
 
-    // Bottom-right to top-left smoothing
-    for (let i = 2 * rX; i <= 4 * rX; i++) {
-      const x = (3 * rX - i) + rX;
-      const y = rY + Math.pow(Math.abs(Math.pow(rY, n) - Math.pow(Math.abs(3 * rX - i), n)), 1 / n);
+    // Top-right corner
+    for (let i = 0; i <= rTopRight; i++) {
+      const x = width - i;
+      const y = rTopRight - Math.pow(Math.abs(Math.pow(rTopRight, n) - Math.pow(Math.abs(i), n)), 1 / n);
+      ctx.lineTo(x, y);
+    }
+
+    // Bottom-right corner
+    for (let i = 0; i <= rBottomRight; i++) {
+      const x = width - i;
+      const y = height - Math.pow(Math.abs(Math.pow(rBottomRight, n) - Math.pow(Math.abs(i), n)), 1 / n);
+      ctx.lineTo(x, y);
+    }
+
+    // Bottom-left corner
+    for (let i = 0; i <= rBottomLeft; i++) {
+      const x = i;
+      const y = height - Math.pow(Math.abs(Math.pow(rBottomLeft, n) - Math.pow(Math.abs(i), n)), 1 / n);
       ctx.lineTo(x, y);
     }
 
