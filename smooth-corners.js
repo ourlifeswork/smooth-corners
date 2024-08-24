@@ -1,39 +1,36 @@
-class SmoothCorners {
-	static get inputProperties() {
-		return ['--smooth-radius', 'border-radius'];
-	}
+registerPaint('smooth-corners', class {
+  paint(ctx, size) {
+    ctx.fillStyle = 'black'
 
-	paint(ctx, size, properties) {
-		// Safely get the border-radius property
-		let borderRadius = 0;
-		try {
-			// Attempt to retrieve and parse the border-radius
-			const borderRadiusProp = properties.get('border-radius');
-			borderRadius = borderRadiusProp ? parseFloat(borderRadiusProp.toString()) : 0;
-		} catch (error) {
-			console.warn("Could not retrieve border-radius property, defaulting to 0:", error);
-		}
+    // n=4 draw a squircle
+    const n = 4
 
-		const smoothRadius = parseFloat(properties.get('--smooth-radius').toString()) || 0.6;
+    let m = n
+    if (n > 100) m = 100
+    if (n < 0.00000000001) m = 0.00000000001
+    const r = size.width / 2
+    const w = size.width / 2
+    const h = size.height / 2
 
-		const width = size.width;
-		const height = size.height;
+    ctx.beginPath();
 
-		// Draw the smooth-cornered shape
-		ctx.beginPath();
-		ctx.moveTo(borderRadius, 0);
-		ctx.lineTo(width - borderRadius, 0);
-		ctx.quadraticCurveTo(width, 0, width, borderRadius);
-		ctx.lineTo(width, height - borderRadius);
-		ctx.quadraticCurveTo(width, height, width - borderRadius, height);
-		ctx.lineTo(borderRadius, height);
-		ctx.quadraticCurveTo(0, height, 0, height - borderRadius);
-		ctx.lineTo(0, borderRadius);
-		ctx.quadraticCurveTo(0, 0, borderRadius, 0);
-		ctx.fill();
-	}
-}
+    for (let i = 0; i < (2*r+1); i++) {
+      const x = (i-r) + w
+      const y = (Math.pow(Math.abs(Math.pow(r,m)-Math.pow(Math.abs(i-r),m)),1/m)) + h
 
-if (typeof registerPaint !== 'undefined') {
-	registerPaint('smooth-corners', SmoothCorners);
-}
+      if (i == 0)
+        ctx.moveTo(x, y)
+      else
+        ctx.lineTo(x, y)
+    }
+
+    for (let i = (2*r); i < (4*r+1); i++) {
+      const x = (3*r-i) + w
+      const y = (-Math.pow(Math.abs(Math.pow(r,m)-Math.pow(Math.abs(3*r-i),m)),1/m)) + h
+      ctx.lineTo(x, y)
+    }
+
+    ctx.closePath()
+    ctx.fill()
+  }
+})
