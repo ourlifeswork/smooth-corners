@@ -1,11 +1,11 @@
 class SmoothCornersPainter {
   static get inputProperties() {
-    return ['border-radius', '--smooth-corner-radius'];
+    return ['border-radius', '--smooth-radius'];
   }
 
   paint(ctx, size, properties) {
     const borderRadiusProp = properties.get('border-radius');
-    const smoothnessProp = properties.get('--smooth-corner-radius');
+    const smoothnessProp = properties.get('--smooth-radius');
 
     // Check if borderRadiusProp is defined, if not, default to 20
     const borderRadius = borderRadiusProp.length > 0 ? parseFloat(borderRadiusProp.toString()) : 20;
