@@ -1,52 +1,44 @@
-class SmoothCornersPainter {
+registerPaint('smooth-corners', class {
   static get inputProperties() {
-    return ['border-radius', '--smooth-radius'];
+    return ['border-radius', '--smooth-corners'];
   }
 
-  paint(ctx, size, properties) {
-    // Safely get the border-radius value, or fallback to 20px
-    const borderRadiusProp = properties.get('border-radius');
-    const borderRadius = borderRadiusProp && borderRadiusProp.value
-      ? parseFloat(borderRadiusProp.toString())
-      : 20;
+  paint(ctx, size, styleMap) {
+    // Get the border-radius value or default to 20px if not found
+    const borderRadiusProp = styleMap.get('border-radius');
+    const borderRadius = borderRadiusProp?.value ? parseFloat(borderRadiusProp.toString()) : 20;
 
-    // Safely get the custom smooth radius, or fallback to 0.6 (60%)
-    const smoothnessProp = properties.get('--smooth-radius');
-    const smoothness = smoothnessProp && smoothnessProp.value
-      ? parseFloat(smoothnessProp.toString())
-      : 0.6;
+    // Get the --smooth-corners custom property or default to 6 if not found
+    const smoothnessProp = styleMap.get('--smooth-corners');
+    const smoothness = smoothnessProp?.value ? parseFloat(smoothnessProp.toString()) : 6;
 
+    // Calculate the control point offset based on the smoothness value
+    const smoothRadius = borderRadius * smoothness;
+
+    // Define the dimensions of the element
     const width = size.width;
     const height = size.height;
 
-    // Ensure the radius does not exceed half of the element's width or height
-    const radius = Math.min(borderRadius, width / 2, height / 2);
-    const smoothedRadius = radius * smoothness;
-
-    // Define control points for bezier curve smoothing
-    const controlPointOffset = smoothedRadius * 0.5522847498; // Approximation for circle smoothing
-
+    ctx.fillStyle = 'black'; // Set the fill style
     ctx.beginPath();
 
     // Top-left corner
-    ctx.moveTo(0, smoothedRadius);
-    ctx.bezierCurveTo(0, controlPointOffset, controlPointOffset, 0, smoothedRadius, 0);
-
-    // Top-right corner
-    ctx.lineTo(width - smoothedRadius, 0);
-    ctx.bezierCurveTo(width - controlPointOffset, 0, width, controlPointOffset, width, smoothedRadius);
-
-    // Bottom-right corner
-    ctx.lineTo(width, height - smoothedRadius);
-    ctx.bezierCurveTo(width, height - controlPointOffset, width - controlPointOffset, height, width - smoothedRadius, height);
+    ctx.moveTo(smoothRadius, 0);
+    ctx.arcTo(0, 0, 0, smoothRadius, smoothRadius);
 
     // Bottom-left corner
-    ctx.lineTo(smoothedRadius, height);
-    ctx.bezierCurveTo(controlPointOffset, height, 0, height - controlPointOffset, 0, height - smoothedRadius);
+    ctx.lineTo(0, height - smoothRadius);
+    ctx.arcTo(0, height, smoothRadius, height, smoothRadius);
+
+    // Bottom-right corner
+    ctx.lineTo(width - smoothRadius, height);
+    ctx.arcTo(width, height, width, height - smoothRadius, smoothRadius);
+
+    // Top-right corner
+    ctx.lineTo(width, smoothRadius);
+    ctx.arcTo(width, 0, width - smoothRadius, 0, smoothRadius);
 
     ctx.closePath();
     ctx.fill();
   }
-}
-
-registerPaint('smooth-corners', SmoothCornersPainter);
+});
