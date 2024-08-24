@@ -1,9 +1,13 @@
 registerPaint('smooth-corners', class {
-  paint(ctx, size) {
-    ctx.fillStyle = 'black'
+  static get inputProperties() {
+      return [
+          '--smooth-corners'
+      ]
+  }
+  paint(ctx, size, styleMap) {
+    const exp = styleMap.get('--smooth-corners').toString()
 
-    // n=4 draw a squircle
-    const n = 4
+    const n = exp
 
     let m = n
     if (n > 100) m = 100
