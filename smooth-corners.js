@@ -1,40 +1,39 @@
-registerPaint('smooth-corners', class {
+class SmoothCornersPainter {
   static get inputProperties() {
-    return ['--smooth-radius', 'border-radius'];
+    return ['border-radius', '--smooth-corner-radius'];
   }
 
-  paint(ctx, size, styleMap) {
-    // Get the smoothing factor (similar to the corner smoothing percentage in Figma)
-    const smoothness = parseFloat(styleMap.get('--smooth-radius')?.toString() || "0.6");
-    
-    // Get the uniform border-radius value (assume all corners have the same radius)
-    const borderRadius = parseFloat(styleMap.get('border-radius')?.toString() || "16px");
+  paint(ctx, size, properties) {
+    const borderRadius = parseFloat(properties.get('border-radius').toString()) || 0;
+    const smoothness = parseFloat(properties.get('--smooth-radius').toString()) || 0.6;
 
     const width = size.width;
     const height = size.height;
 
-    // Calculate the smooth radius (percentage of the border radius)
-    const smoothRadius = borderRadius * smoothness;
+    const radius = Math.min(borderRadius, width / 2, height / 2);
+    const smoothedRadius = radius * smoothness;
 
     ctx.beginPath();
 
     // Top-left corner
-    ctx.moveTo(borderRadius, 0);
-    ctx.quadraticCurveTo(0, 0, 0, smoothRadius);
+    ctx.moveTo(0, smoothedRadius);
+    ctx.arcTo(0, 0, smoothedRadius, 0, smoothedRadius);
 
     // Top-right corner
-    ctx.lineTo(width - borderRadius, 0);
-    ctx.quadraticCurveTo(width, 0, width, smoothRadius);
+    ctx.lineTo(width - smoothedRadius, 0);
+    ctx.arcTo(width, 0, width, smoothedRadius, smoothedRadius);
 
     // Bottom-right corner
-    ctx.lineTo(width, height - borderRadius);
-    ctx.quadraticCurveTo(width, height, width - smoothRadius, height);
+    ctx.lineTo(width, height - smoothedRadius);
+    ctx.arcTo(width, height, width - smoothedRadius, height, smoothedRadius);
 
     // Bottom-left corner
-    ctx.lineTo(smoothRadius, height);
-    ctx.quadraticCurveTo(0, height, 0, height - borderRadius);
+    ctx.lineTo(smoothedRadius, height);
+    ctx.arcTo(0, height, 0, height - smoothedRadius, smoothedRadius);
 
     ctx.closePath();
     ctx.fill();
   }
-});
+}
+
+registerPaint('smooth-corners', SmoothCornersPainter);
