@@ -1,50 +1,39 @@
 registerPaint('smooth-corners', class {
   static get inputProperties() {
-      return ['--smooth-corners'];
+    return ['--smooth-corners'];
   }
 
   paint(ctx, size, styleMap) {
-    // Get the smooth-corners value from the style map
+    // Get the smoothness value
     const exp = styleMap.get('--smooth-corners').toString();
-
-    // Parse the smoothness value
     let n = parseFloat(exp);
-    if (isNaN(n)) n = 1; // Fallback to 1 if the value is not a number
+    if (isNaN(n)) n = 1; // Fallback to 1 if invalid
+    n = Math.max(0.00000000001, Math.min(n, 100)); // Clamp between reasonable bounds
 
-    // Ensure the value of n is clamped between reasonable bounds
-    let m = n;
-    if (n > 100) m = 100;
-    if (n < 0.00000000001) m = 0.00000000001;
+    // Calculate radii based on the element's dimensions
+    const w = size.width;
+    const h = size.height;
 
-    // Get the half width and height of the element
-    const w = size.width / 2;
-    const h = size.height / 2;
+    const rX = w / 2; // Radius for width
+    const rY = h / 2; // Radius for height
 
-    // Get the smallest radius for circular effect scaling
-    const r = Math.min(w, h);
-
-    // Start the drawing
     ctx.beginPath();
 
-    // Draw top-right and bottom-left rounded corners
-    for (let i = 0; i <= 2 * r; i++) {
-      // Calculate x and y using the smooth-corners formula
-      const x = (i - r) + w;
-      const y = h - (Math.pow(Math.abs(Math.pow(r, m) - Math.pow(Math.abs(i - r), m)), 1 / m));
-
+    // Top-right to bottom-left smoothing
+    for (let i = 0; i <= 2 * rX; i++) {
+      const x = (i - rX) + rX;
+      const y = rY - Math.pow(Math.abs(Math.pow(rY, n) - Math.pow(Math.abs(i - rX), n)), 1 / n);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
 
-    // Draw bottom-right and top-left rounded corners
-    for (let i = 2 * r; i <= 4 * r; i++) {
-      const x = (3 * r - i) + w;
-      const y = h + (Math.pow(Math.abs(Math.pow(r, m) - Math.pow(Math.abs(3 * r - i), m)), 1 / m));
-
+    // Bottom-right to top-left smoothing
+    for (let i = 2 * rX; i <= 4 * rX; i++) {
+      const x = (3 * rX - i) + rX;
+      const y = rY + Math.pow(Math.abs(Math.pow(rY, n) - Math.pow(Math.abs(3 * rX - i), n)), 1 / n);
       ctx.lineTo(x, y);
     }
 
-    // Close the path and fill the shape
     ctx.closePath();
     ctx.fill();
   }
