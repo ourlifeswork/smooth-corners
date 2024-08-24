@@ -1,39 +1,38 @@
 registerPaint('smooth-corners', class {
   static get inputProperties() {
-    return ['--smooth-corners', 'border-radius'];
+    return ['--smooth-radius', 'border-radius'];
   }
 
   paint(ctx, size, styleMap) {
-    // Get the smoothing factor from the custom property
-    const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "6");
-    const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
-
-    // Safely get the border-radius property value, fallback to 16px if it's not set
+    // Get the smoothing factor (similar to the corner smoothing percentage in Figma)
+    const smoothness = parseFloat(styleMap.get('--smooth-radius')?.toString() || "0.6");
+    
+    // Get the uniform border-radius value (assume all corners have the same radius)
     const borderRadius = parseFloat(styleMap.get('border-radius')?.toString() || "16px");
 
     const width = size.width;
     const height = size.height;
 
+    // Calculate the smooth radius (percentage of the border radius)
+    const smoothRadius = borderRadius * smoothness;
+
     ctx.beginPath();
 
-    // Top-left corner: Explicitly handle this corner to ensure it's drawn correctly
+    // Top-left corner
     ctx.moveTo(borderRadius, 0);
-    ctx.arcTo(0, 0, 0, borderRadius, borderRadius);
+    ctx.quadraticCurveTo(0, 0, 0, smoothRadius);
 
     // Top-right corner
     ctx.lineTo(width - borderRadius, 0);
-    ctx.arcTo(width, 0, width, borderRadius, borderRadius);
+    ctx.quadraticCurveTo(width, 0, width, smoothRadius);
 
     // Bottom-right corner
     ctx.lineTo(width, height - borderRadius);
-    ctx.arcTo(width, height, width - borderRadius, height, borderRadius);
+    ctx.quadraticCurveTo(width, height, width - smoothRadius, height);
 
     // Bottom-left corner
-    ctx.lineTo(borderRadius, height);
-    ctx.arcTo(0, height, 0, height - borderRadius, borderRadius);
-
-    // Close the path back to the top-left corner
-    ctx.lineTo(0, borderRadius);
+    ctx.lineTo(smoothRadius, height);
+    ctx.quadraticCurveTo(0, height, 0, height - borderRadius);
 
     ctx.closePath();
     ctx.fill();
