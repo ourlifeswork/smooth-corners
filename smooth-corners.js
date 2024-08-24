@@ -16,7 +16,7 @@ registerPaint('smooth-corners', class {
 
     ctx.beginPath();
 
-    // Top-left corner
+    // Top-left corner: Explicitly handle this corner to ensure it's drawn correctly
     ctx.moveTo(borderRadius, 0);
     ctx.arcTo(0, 0, 0, borderRadius, borderRadius);
 
@@ -32,7 +32,7 @@ registerPaint('smooth-corners', class {
     ctx.lineTo(borderRadius, height);
     ctx.arcTo(0, height, 0, height - borderRadius, borderRadius);
 
-    // Close the path
+    // Close the path back to the top-left corner
     ctx.lineTo(0, borderRadius);
 
     ctx.closePath();
