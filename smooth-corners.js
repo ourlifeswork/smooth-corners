@@ -5,7 +5,7 @@ registerPaint('smooth-corners', class {
 
   paint(ctx, size, styleMap) {
     // Get the smoothing factor from the custom property
-    const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "1");
+    const exp = parseFloat(styleMap.get('--smooth-corners')?.toString() || "6");
     const n = Math.max(0.00000000001, Math.min(exp, 100)); // Clamp between reasonable bounds
 
     // Safely get the border-radius property value, fallback to 16px if it's not set
